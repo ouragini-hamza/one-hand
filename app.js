@@ -110,7 +110,7 @@ function finishPointer(){
  if(!pointer)return;clearTimeout(holdTimer);fab.classList.remove("dragging","dialing");
  if(gestureMode==="drag")snapFab();
  else if(gestureMode==="rotate")vibrate(12);
- else if(!gestureMode){tapCount++;clearTimeout(tapTimer);tapTimer=setTimeout(()=>{if(tapCount>=3)smartDetect();else if(tapCount===1)toggleMenu();else if(tapCount===2){closeMenu();toast("One more tap to detect a product")}tapCount=0},330)}
+ else if(!gestureMode){tapCount++;clearTimeout(tapTimer);tapTimer=setTimeout(()=>{if(tapCount>=2)smartDetect();else if(tapCount===1)toggleMenu();tapCount=0},330)}
  pointer=null;gestureMode=null;
 }
 fab.addEventListener("pointerup",finishPointer);fab.addEventListener("pointercancel",finishPointer);fab.addEventListener("lostpointercapture",finishPointer);
