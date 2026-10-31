@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#131921">
+  <title>OneHand Shop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" id="homeLink" aria-label="OneHand Shop home">◈ <span>OneHand</span></a>
+    <label class="searchbox"><span>⌕</span><input id="searchInput" type="search" placeholder="Search products" autocomplete="off"></label>
+    <button class="cart-shortcut" id="cartShortcut" aria-label="Open cart">🛒 <b id="cartCount">0</b></button>
+  </header>
+  <main id="mainContent">
+    <section class="hero"><p class="eyebrow">SHOP SMARTER, WITH ONE HAND</p><h1>Everything you need.<br><span>One touch away.</span></h1><p>Explore the demo store and try the floating gesture button.</p></section>
+    <nav class="categories" aria-label="Categories"><button class="category active" data-category="All">All</button><button class="category" data-category="Tech">Tech</button><button class="category" data-category="Wearables">Wearables</button><button class="category" data-category="Lifestyle">Lifestyle</button></nav>
+    <section class="section-head"><div><p class="eyebrow">CURATED FOR YOU</p><h2>Popular products</h2></div><span id="resultCount"></span></section>
+    <section id="productGrid" class="product-grid" aria-live="polite"></section>
+  </main>
+  <footer>OneHand Shop · Interactive prototype</footer>
+
+  <div id="overlay" class="overlay" hidden></div>
+  <section id="panel" class="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+    <div class="panel-grip"></div><div class="panel-head"><div><p class="eyebrow">ONEHAND CONTROL</p><h2 id="panelTitle">Menu</h2></div><button id="closePanel" class="icon-button" aria-label="Close">×</button></div>
+    <div id="panelContent"></div>
+  </section>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <button id="fab" class="fab" aria-label="OneHand gesture button" title="Tap for shortcuts · Hold and rotate to zoom">◉</button>
+  <div id="radialMenu" class="radial-menu" aria-label="Quick actions"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>
