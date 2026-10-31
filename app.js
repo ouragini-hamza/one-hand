@@ -51,10 +51,26 @@ function radialItems(){
 }
 function toggleMenu(){if(menuOpen){closeMenu();return}closePanel();menuOpen=true;radialItems()}
 function smartDetect(){
- closeMenu();const cards=[...document.querySelectorAll(".product-card")];if(!cards.length){toast("No visible product to detect");return}
- const center=innerHeight/2;let best=cards[0],bestDistance=Infinity;
- cards.forEach(card=>{const rect=card.getBoundingClientRect(),distance=Math.abs(rect.top+rect.height/2-center);if(distance<bestDistance){best=card;bestDistance=distance}});
- const id=Number(best.dataset.productId);openProduct(id);vibrate([25,35,25]);
+ closeMenu();
+ const cards=[...document.querySelectorAll(".product-card")].filter(card=>{
+  const r=card.getBoundingClientRect();
+  return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;
+ });
+ if(!cards.length){toast("No product is visible. Scroll to a product first.");return}
+ // Pick the visible card nearest to the actual screen centre, using both X and Y.
+ const cx=innerWidth/2,cy=innerHeight/2;
+ const distanceToRect=rect=>{
+  const dx=Math.max(rect.left-cx,0,cx-rect.right);
+  const dy=Math.max(rect.top-cy,0,cy-rect.bottom);
+  return Math.hypot(dx,dy);
+ };
+ cards.sort((a,b)=>distanceToRect(a.getBoundingClientRect())-distanceToRect(b.getBoundingClientRect()));
+ const best=cards[0],id=Number(best.dataset.productId);
+ // The detail sheet names the selected product before any product action is taken.
+ openProduct(id);
+ const title=$("#panelTitle");
+ if(title)title.textContent="Selected product · "+PRODUCTS.find(p=>p.id===id).name;
+ vibrate([25,35,25]);
 }
 function snapFab(){const x=fab.offsetLeft+fab.offsetWidth/2<innerWidth/2?8:innerWidth-fab.offsetWidth-8;const y=Math.max(8,Math.min(innerHeight-fab.offsetHeight-8,fab.offsetTop));fab.style.left=x+"px";fab.style.top=y+"px"}
 function positionFab(){const x=Math.max(8,innerWidth-fab.offsetWidth-18),y=Math.round(innerHeight*.62);fab.style.left=x+"px";fab.style.top=y+"px"}
