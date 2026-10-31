@@ -30,7 +30,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -48,7 +47,6 @@ jobs:
         run: |
           mkdir -p www
           cp index.html styles.css app.js www/
-          npx cap init OneHandShop com.hamza.onehandshop --web-dir=www
           npx cap add android
           npx cap sync android
 
