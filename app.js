@@ -41,7 +41,7 @@ function openProduct(id){
  openPanel(p.icon+" "+p.name,`<div class="detail-row"><span>Price</span><b>${money(p.price)}</b></div><div class="detail-row"><span>Rating</span><b>★ ${p.rating} (${p.reviews})</b></div><div class="detail-row"><span>Category</span><b>${p.category}</b></div><div class="product-detail-actions"><button class="primary-button" id="detailAdd">🛒 Add to cart</button><button class="secondary-button" id="detailBuy">⚡ Buy now</button><button class="secondary-button" id="detailSave">♡ Save</button><button class="secondary-button" id="detailShare">↗ Share</button></div><p class="panel-note">Product actions are demo interactions; checkout and payment are not connected.</p>`);
 }
 function showCart(){openCart()}
-function setZoom(next,notify=true){zoom=Math.max(.75,Math.min(1.35,next));document.documentElement.style.zoom=String(zoom);if(notify)toast("Page size "+Math.round(zoom*100)+"%")}
+function setZoom(next,notify=true){zoom=Math.max(.75,Math.min(1.35,next));const content=$("#mainContent"),footer=document.querySelector("body>footer");content.style.zoom=String(zoom);if(footer)footer.style.zoom=String(zoom);if(notify)toast("Content size "+Math.round(zoom*100)+"%")}
 function openSettings(){openPanel("Settings",`<p>Adjust page size with the slider, or use the hold-and-rotate gesture on the floating button.</p><label for="zoomRange">Page size: <b id="zoomLabel">${Math.round(zoom*100)}%</b></label><input class="range" id="zoomRange" type="range" min="75" max="135" value="${Math.round(zoom*100)}"><p class="panel-note">Tip: hold the floating button and move your finger in a circle. Clockwise zooms in; counterclockwise zooms out.</p>`)}
 function radialItems(){
  const actions=[["⌂","Home",()=>{closeMenu();window.scrollTo({top:0,behavior:"smooth"})}],["⌕","Search",()=>{closeMenu();$("#searchInput").focus();window.scrollTo({top:0,behavior:"smooth"})}],["🛒","Cart",showCart],["♡","Saved",()=>{closeMenu();toast("Your saved list is empty") }],["⚙","Settings",openSettings]];
@@ -89,7 +89,7 @@ fab.addEventListener("pointerdown",e=>{
  if(e.button!==undefined&&e.button!==0)return;
  e.preventDefault();fab.setPointerCapture(e.pointerId);
  const r=fab.getBoundingClientRect();pointer={x:e.clientX,y:e.clientY,cx:r.left+r.width/2,cy:r.top+r.height/2,ox:r.left,oy:r.top};
- gestureMode=null;rotation=0;
+ gestureMode=null;rotation=0;fab.dataset.zoomLabel="";fab.classList.remove("zooming-in","zooming-out");
  holdTimer=setTimeout(()=>{if(!pointer)return;gestureMode="rotate";lastAngle=angleAt(pointer.x,pointer.y);fab.classList.add("dialing");closeMenu();vibrate(22)},420);
 });
 fab.addEventListener("pointermove",e=>{
@@ -98,7 +98,7 @@ fab.addEventListener("pointermove",e=>{
  if(gestureMode==="rotate"){
   const a=angleAt(e.clientX,e.clientY);let delta=a-lastAngle;
   if(delta>Math.PI)delta-=Math.PI*2;if(delta< -Math.PI)delta+=Math.PI*2;
-  lastAngle=a;rotation+=delta;setZoom(zoom+delta*.13,false);return;
+  lastAngle=a;rotation+=delta;if(Math.abs(delta)>.002){const inward=delta>0;fab.dataset.zoomLabel=inward?"ZOOM IN +":"ZOOM OUT −";fab.classList.toggle("zooming-in",inward);fab.classList.toggle("zooming-out",!inward)}setZoom(zoom+delta*.13,false);return;
  }
  if(!gestureMode&&Math.hypot(dx,dy)>9){clearTimeout(holdTimer);gestureMode="drag";fab.classList.add("dragging");closeMenu()}
  if(gestureMode==="drag"){
@@ -107,7 +107,7 @@ fab.addEventListener("pointermove",e=>{
  }
 });
 function finishPointer(){
- if(!pointer)return;clearTimeout(holdTimer);fab.classList.remove("dragging","dialing");
+ if(!pointer)return;clearTimeout(holdTimer);fab.classList.remove("dragging","dialing","zooming-in","zooming-out");fab.dataset.zoomLabel="";
  if(gestureMode==="drag")snapFab();
  else if(gestureMode==="rotate")vibrate(12);
  else if(!gestureMode){tapCount++;clearTimeout(tapTimer);tapTimer=setTimeout(()=>{if(tapCount>=2)smartDetect();else if(tapCount===1)toggleMenu();tapCount=0},330)}
