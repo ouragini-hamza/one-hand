@@ -50,6 +50,18 @@ function radialItems(){
  actions.forEach((a,i)=>{const angle=base+(i-2)*.55,dist=93,x=Math.max(8,Math.min(innerWidth-58,cx+Math.cos(angle)*dist-25)),y=Math.max(8,Math.min(innerHeight-58,cy+Math.sin(angle)*dist-25));const b=document.createElement("button");b.className="radial-item";b.type="button";b.textContent=a[0];b.setAttribute("aria-label",a[1]);b.title=a[1];b.style.left=x+"px";b.style.top=y+"px";b.addEventListener("click",a[2]);radial.appendChild(b)});
 }
 function toggleMenu(){if(menuOpen){closeMenu();return}closePanel();menuOpen=true;radialItems()}
+function showProductChoices(orderedIds){
+ const products=orderedIds.map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+ if(!products.length){toast("No visible product to select");return}
+ const suggested=products[0];
+ const productRow=(p,isSuggested)=>`<button type="button" class="detected-product ${isSuggested?"detected-product-best":""}" data-select-product="${p.id}">
+  <span class="detected-product-icon">${p.icon}</span>
+  <span class="detected-product-info"><b>${p.name}</b><small>${money(p.price)} · ${p.category}</small></span>
+  <span class="detected-product-action">${isSuggested?"Best match · Select":"Select"} </span>
+ </button>`;
+ openPanel("Choose a product",`<p class="panel-note">We picked the closest product to the centre of your screen. If that's not the one you meant, choose another visible product below.</p>
+  <div class="detected-product-list">${products.map((p,i)=>productRow(p,i===0)).join("")}</div>`);
+}
 function smartDetect(){
  closeMenu();
  const cards=[...document.querySelectorAll(".product-card")].filter(card=>{
@@ -57,7 +69,7 @@ function smartDetect(){
   return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;
  });
  if(!cards.length){toast("No product is visible. Scroll to a product first.");return}
- // Pick the visible card nearest to the actual screen centre, using both X and Y.
+ // Rank only visible cards by distance from the screen centre.
  const cx=innerWidth/2,cy=innerHeight/2;
  const distanceToRect=rect=>{
   const dx=Math.max(rect.left-cx,0,cx-rect.right);
@@ -65,11 +77,8 @@ function smartDetect(){
   return Math.hypot(dx,dy);
  };
  cards.sort((a,b)=>distanceToRect(a.getBoundingClientRect())-distanceToRect(b.getBoundingClientRect()));
- const best=cards[0],id=Number(best.dataset.productId);
- // The detail sheet names the selected product before any product action is taken.
- openProduct(id);
- const title=$("#panelTitle");
- if(title)title.textContent="Selected product · "+PRODUCTS.find(p=>p.id===id).name;
+ const ids=cards.map(card=>Number(card.dataset.productId));
+ showProductChoices(ids);
  vibrate([25,35,25]);
 }
 function snapFab(){const x=fab.offsetLeft+fab.offsetWidth/2<innerWidth/2?8:innerWidth-fab.offsetWidth-8;const y=Math.max(8,Math.min(innerHeight-fab.offsetHeight-8,fab.offsetTop));fab.style.left=x+"px";fab.style.top=y+"px"}
@@ -112,6 +121,8 @@ document.querySelector(".categories").addEventListener("click",e=>{const b=e.tar
 $("#cartShortcut").addEventListener("click",showCart);$("#homeLink").addEventListener("click",e=>{e.preventDefault();closeAll();window.scrollTo({top:0,behavior:"smooth"})});
 $("#closePanel").addEventListener("click",closePanel);overlay.addEventListener("click",closePanel);
 $("#panelContent").addEventListener("click",e=>{
+ const productChoice=e.target.closest("[data-select-product]");
+ if(productChoice){openProduct(Number(productChoice.dataset.selectProduct));return}
  if(e.target.id==="checkoutButton")toast("Demo only — checkout is not connected");
  if(e.target.id==="detailAdd"&&currentProduct)addToCart(currentProduct.id);
  if(e.target.id==="detailBuy"&&currentProduct){addToCart(currentProduct.id);toast("Added — demo checkout only")}
