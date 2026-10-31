@@ -1,0 +1,6 @@
+{
+  "appId": "com.hamza.onehandshop",
+  "appName": "OneHand Shop",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
